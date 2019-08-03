@@ -1,28 +1,30 @@
 #include "LEDSevSeg.h"
 
-LEDSevSeg::LEDSevSeg() : SevSeg() {
+LEDSevSeg::LEDSevSeg(CallBack ledOn, CallBack ledOff) : SevSeg() {
+    this->ledOn = ledOn;
+    this->ledOff = ledOff;
 }
 
 void LEDSevSeg::refreshDisplay() {
     for (uint8_t digitNum = 0; digitNum < numDigits; digitNum++) {
         digitOn(digitNum);
 
-        #ifdef ARDUINO
-        delayMicroseconds(ledOnTime);
-#else
-        sleep(ledOnTime/1000000);
-#endif
+//         #ifdef ARDUINO
+//         delayMicroseconds(ledOnTime);
+// #else
+//         sleep(ledOnTime/1000000);
+// #endif
 
-        digitOff(digitNum);
+//         digitOff(digitNum);
 
-        // Wait with all lights off if required
-        if (waitOffTime) {
-#ifdef ARDUINO
-          delayMicroseconds(waitOffTime);
-#else
-          sleep(waitOffTime/1000000);
-#endif
-        }
+//         // Wait with all lights off if required
+//         if (waitOffTime) {
+// #ifdef ARDUINO
+//           delayMicroseconds(waitOffTime);
+// #else
+//           sleep(waitOffTime/1000000);
+// #endif
+        // }
     }
 }
 void LEDSevSeg::begin(uint8_t numDigitsIn, bool resOnSegmentsIn, 
@@ -85,14 +87,21 @@ void LEDSevSeg::digitOn(uint8_t digitNum) {
     for (uint8_t segmentNum = 0; segmentNum < numSegments; segmentNum++) {
         if (digitCodes[digitNum] & (1 << segmentNum)) {
             printf("%d, %d\n", digitLEDS[digitNum][segmentNum][0], digitLEDS[digitNum][segmentNum][1]);
-            // TODO: ADD FastLED turn on
+
+            this->ledOn(digitLEDS[digitNum][segmentNum][0]);
+            this->ledOn(digitLEDS[digitNum][segmentNum][1]);
         }
     }
 }
 
-void LEDSevSeg::digitOff(uint8_t digitOff) {
+void LEDSevSeg::digitOff(uint8_t digitNum) {
     for (uint8_t segmentNum = 0; segmentNum < numSegments; segmentNum++) {
-        // TODO: Add FastLED turn off
+        if (digitCodes[digitNum] & (1 << segmentNum)) {
+            printf("%d, %d\n", digitLEDS[digitNum][segmentNum][0], digitLEDS[digitNum][segmentNum][1]);
+
+            this->ledOff(digitLEDS[digitNum][segmentNum][0]);
+            this->ledOff(digitLEDS[digitNum][segmentNum][1]);
+        }
     }
 }
 

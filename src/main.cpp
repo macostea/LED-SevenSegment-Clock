@@ -16,12 +16,13 @@
 #define FRAMES_PER_SECOND 120
 
 CRGB leds[NUM_LEDS];
-uint8_t gHue = 0;
+uint8_t colorPos = 0;
 
 RtcDS3231<TwoWire> Rtc(Wire);
+CRGB colors[4] {CRGB::Red, CRGB::Green, CRGB::Yellow, CRGB::GreenYellow};
 
 void ledOn(int pos) {
-  leds[pos+8] = CHSV(gHue, 255, 192);
+  leds[pos+8] = colors[colorPos];
 }
 
 void ledOff(int pos) {
@@ -65,21 +66,31 @@ void setup() {
   randomSeed(analogRead(0));
 }
 
+int lastHour = -1;
+int lastMinute = -1;
+
 void loop() {
   for (int i=0; i<NUM_LEDS; i++) {
     leds[i] = CRGB::Black;
   }
 
+  int currentHour = hour();
+  int currentMinute = minute();
+
+  if (currentHour != lastHour || currentMinute != lastMinute) {
+    colorPos = (colorPos + 1) % 4;
+  }
+
   int time = 0;
-  time = hour() * 100;
-  time += minute();
+  time = currentHour * 100;
+  time += currentMinute;
+
+  lastHour = currentHour;
+  lastMinute = currentMinute;
 
   ledSevSeg.setNumber(time);
 
   ledSevSeg.refreshDisplay();
   FastLED.show();
   FastLED.delay(1000/FRAMES_PER_SECOND);
-
-  EVERY_N_MILLISECONDS( 20 ) { gHue++; }
 }
-

@@ -56,7 +56,7 @@ void setup() {
 
   setSyncProvider(getTime);
 
-  ledSevSeg.begin(4);
+  ledSevSeg.begin(4, false, false, true, false);
 
   delay(3000);
 
